@@ -1,0 +1,5 @@
+Number of nodes: 2
+Node labels: a b 
+Number of edges: 1
+Edges:
+a -> b
