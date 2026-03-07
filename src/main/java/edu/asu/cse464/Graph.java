@@ -18,15 +18,42 @@ public class Graph {
     }
 
     public void addNode(String label) {
+        if (label == null) {
+            return;
+        }
+
         label = label.trim();
+
+        if (label.isEmpty()) {
+            return;
+        }
+
         if (!nodes.containsKey(label)) {
             nodes.put(label, new Node(label));
         }
     }
 
+    public void addNodes(String[] labels) {
+        if (labels == null) {
+            return;
+        }
+
+        for (String label : labels) {
+            addNode(label);
+        }
+    }
+
     public void addEdge(String srcLabel, String dstLabel) {
+        if (srcLabel == null || dstLabel == null) {
+            return;
+        }
+
         srcLabel = srcLabel.trim();
         dstLabel = dstLabel.trim();
+
+        if (srcLabel.isEmpty() || dstLabel.isEmpty()) {
+            return;
+        }
 
         addNode(srcLabel);
         addNode(dstLabel);
