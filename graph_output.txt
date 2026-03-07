@@ -1,0 +1,13 @@
+Number of nodes: 8
+Node labels: a b c d e f g h 
+Number of edges: 9
+Edges:
+a -> b
+b -> c
+c -> d
+d -> a
+a -> e
+e -> f
+e -> g
+f -> h
+g -> h
