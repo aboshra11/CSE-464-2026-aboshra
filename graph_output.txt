@@ -1,6 +1,6 @@
 Number of nodes: 12
 Node labels: a b c d e f g h x y z m 
-Number of edges: 9
+Number of edges: 12
 Edges:
 a -> b
 b -> c
@@ -11,3 +11,6 @@ e -> f
 e -> g
 f -> h
 g -> h
+x -> y
+y -> z
+m -> a
