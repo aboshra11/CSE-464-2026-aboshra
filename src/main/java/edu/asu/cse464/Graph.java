@@ -17,6 +17,8 @@ public class Graph {
         edges = new LinkedHashSet<>();
     }
 
+    // ─── Add APIs ────────────────────────────────────────────────────────────
+
     public void addNode(String label) {
         if (label == null) {
             return;
@@ -64,6 +66,59 @@ public class Graph {
         edges.add(new Edge(src, dst));
     }
 
+    // ─── Remove APIs ─────────────────────────────────────────────────────────
+
+    public void removeNode(String label) {
+        if (label == null || !nodes.containsKey(label.trim())) {
+            throw new IllegalArgumentException("Node not found: " + label);
+        }
+
+        label = label.trim();
+        Node toRemove = nodes.get(label);
+
+        // Remove all edges connected to this node (as source or destination)
+        edges.removeIf(e ->
+                e.getSource().equals(toRemove) || e.getDestination().equals(toRemove)
+        );
+
+        nodes.remove(label);
+    }
+
+    public void removeNodes(String[] labels) {
+        if (labels == null) {
+            return;
+        }
+
+        for (String label : labels) {
+            removeNode(label);
+        }
+    }
+
+    public void removeEdge(String srcLabel, String dstLabel) {
+        if (srcLabel == null || dstLabel == null) {
+            throw new IllegalArgumentException("Labels cannot be null.");
+        }
+
+        srcLabel = srcLabel.trim();
+        dstLabel = dstLabel.trim();
+
+        Node src = nodes.get(srcLabel);
+        Node dst = nodes.get(dstLabel);
+
+        if (src == null || dst == null) {
+            throw new IllegalArgumentException("One or both nodes not found.");
+        }
+
+        Edge toRemove = new Edge(src, dst);
+        if (!edges.contains(toRemove)) {
+            throw new IllegalArgumentException("Edge not found: " + srcLabel + " -> " + dstLabel);
+        }
+
+        edges.remove(toRemove);
+    }
+
+    // ─── Getters ─────────────────────────────────────────────────────────────
+
     public Map<String, Node> getNodes() {
         return nodes;
     }
@@ -71,6 +126,8 @@ public class Graph {
     public Set<Edge> getEdges() {
         return edges;
     }
+
+    // ─── Output APIs ─────────────────────────────────────────────────────────
 
     public void outputGraph(String filepath) throws IOException {
         Files.writeString(Paths.get(filepath), toString());
@@ -110,6 +167,8 @@ public class Graph {
             throw new RuntimeException("Graphviz command failed with exit code: " + exitCode);
         }
     }
+
+    // ─── String representations ───────────────────────────────────────────────
 
     public String toDOTString() {
         StringBuilder sb = new StringBuilder();
