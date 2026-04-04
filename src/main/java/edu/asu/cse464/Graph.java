@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 public class Graph {
     private final Map<String, Node> nodes;
@@ -78,7 +78,6 @@ public class Graph {
         label = label.trim();
         Node toRemove = nodes.get(label);
 
-        // Remove all edges connected to this node (as source or destination)
         edges.removeIf(e ->
                 e.getSource().equals(toRemove) || e.getDestination().equals(toRemove)
         );
@@ -118,11 +117,23 @@ public class Graph {
 
         edges.remove(toRemove);
     }
-    public Path GraphSearch(Node src, Node dst) {
+
+    // ─── Graph Search ─────────────────────────────────────────────────────────
+
+    public Path GraphSearch(Node src, Node dst, Algorithm algo) {
         if (src == null || dst == null) return null;
         if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return null;
 
-        // BFS
+        if (algo == Algorithm.BFS) {
+            return bfs(src, dst);
+        } else if (algo == Algorithm.DFS) {
+            return dfs(src, dst);
+        }
+
+        return null;
+    }
+
+    private Path bfs(Node src, Node dst) {
         Queue<Node> queue = new LinkedList<>();
         Map<Node, Node> parentMap = new LinkedHashMap<>();
 
@@ -133,16 +144,7 @@ public class Graph {
             Node current = queue.poll();
 
             if (current.equals(dst)) {
-                // Reconstruct path
-                Path path = new Path();
-                LinkedList<Node> stack = new LinkedList<>();
-                Node step = dst;
-                while (step != null) {
-                    stack.addFirst(step);
-                    step = parentMap.get(step);
-                }
-                for (Node n : stack) path.addNode(n);
-                return path;
+                return reconstructPath(parentMap, dst);
             }
 
             for (Edge edge : edges) {
@@ -153,8 +155,52 @@ public class Graph {
             }
         }
 
-        return null; // no path found
+        return null;
     }
+
+    private Path dfs(Node src, Node dst) {
+        Set<Node> visited = new LinkedHashSet<>();
+        LinkedList<Node> stack = new LinkedList<>();
+        Map<Node, Node> parentMap = new LinkedHashMap<>();
+
+        stack.push(src);
+        parentMap.put(src, null);
+
+        while (!stack.isEmpty()) {
+            Node current = stack.pop();
+
+            if (visited.contains(current)) continue;
+            visited.add(current);
+
+            if (current.equals(dst)) {
+                return reconstructPath(parentMap, dst);
+            }
+
+            for (Edge edge : edges) {
+                if (edge.getSource().equals(current) && !visited.contains(edge.getDestination())) {
+                    if (!parentMap.containsKey(edge.getDestination())) {
+                        parentMap.put(edge.getDestination(), current);
+                    }
+                    stack.push(edge.getDestination());
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Path reconstructPath(Map<Node, Node> parentMap, Node dst) {
+        Path path = new Path();
+        LinkedList<Node> result = new LinkedList<>();
+        Node step = dst;
+        while (step != null) {
+            result.addFirst(step);
+            step = parentMap.get(step);
+        }
+        for (Node n : result) path.addNode(n);
+        return path;
+    }
+
     // ─── Getters ─────────────────────────────────────────────────────────────
 
     public Map<String, Node> getNodes() {
