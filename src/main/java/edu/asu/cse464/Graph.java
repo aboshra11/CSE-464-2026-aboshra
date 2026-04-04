@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Graph {
     private final Map<String, Node> nodes;
@@ -116,7 +118,43 @@ public class Graph {
 
         edges.remove(toRemove);
     }
+    public Path GraphSearch(Node src, Node dst) {
+        if (src == null || dst == null) return null;
+        if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return null;
 
+        // BFS
+        Queue<Node> queue = new LinkedList<>();
+        Map<Node, Node> parentMap = new LinkedHashMap<>();
+
+        queue.add(src);
+        parentMap.put(src, null);
+
+        while (!queue.isEmpty()) {
+            Node current = queue.poll();
+
+            if (current.equals(dst)) {
+                // Reconstruct path
+                Path path = new Path();
+                LinkedList<Node> stack = new LinkedList<>();
+                Node step = dst;
+                while (step != null) {
+                    stack.addFirst(step);
+                    step = parentMap.get(step);
+                }
+                for (Node n : stack) path.addNode(n);
+                return path;
+            }
+
+            for (Edge edge : edges) {
+                if (edge.getSource().equals(current) && !parentMap.containsKey(edge.getDestination())) {
+                    parentMap.put(edge.getDestination(), current);
+                    queue.add(edge.getDestination());
+                }
+            }
+        }
+
+        return null; // no path found
+    }
     // ─── Getters ─────────────────────────────────────────────────────────────
 
     public Map<String, Node> getNodes() {
