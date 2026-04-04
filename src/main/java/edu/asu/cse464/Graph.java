@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,6 +116,52 @@ public class Graph {
         }
 
         edges.remove(toRemove);
+    }
+
+    // ─── Graph Search (DFS) ───────────────────────────────────────────────────
+
+    public Path GraphSearch(Node src, Node dst) {
+        if (src == null || dst == null) return null;
+        if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return null;
+
+        // DFS
+        Set<Node> visited = new LinkedHashSet<>();
+        LinkedList<Node> stack = new LinkedList<>();
+        Map<Node, Node> parentMap = new LinkedHashMap<>();
+
+        stack.push(src);
+        parentMap.put(src, null);
+
+        while (!stack.isEmpty()) {
+            Node current = stack.pop();
+
+            if (visited.contains(current)) continue;
+            visited.add(current);
+
+            if (current.equals(dst)) {
+                // Reconstruct path
+                Path path = new Path();
+                LinkedList<Node> result = new LinkedList<>();
+                Node step = dst;
+                while (step != null) {
+                    result.addFirst(step);
+                    step = parentMap.get(step);
+                }
+                for (Node n : result) path.addNode(n);
+                return path;
+            }
+
+            for (Edge edge : edges) {
+                if (edge.getSource().equals(current) && !visited.contains(edge.getDestination())) {
+                    if (!parentMap.containsKey(edge.getDestination())) {
+                        parentMap.put(edge.getDestination(), current);
+                    }
+                    stack.push(edge.getDestination());
+                }
+            }
+        }
+
+        return null; // no path found
     }
 
     // ─── Getters ─────────────────────────────────────────────────────────────
