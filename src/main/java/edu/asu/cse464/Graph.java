@@ -121,8 +121,7 @@ public class Graph {
     // ─── Graph Search ─────────────────────────────────────────────────────────
 
     public Path graphSearch(Node src, Node dst, Algorithm algo) {
-        if (src == null || dst == null) return null;
-        if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return null;
+        if (!validateNodes(src, dst)) return null;
 
         if (algo == Algorithm.BFS) {
             return bfs(src, dst);
@@ -131,6 +130,12 @@ public class Graph {
         }
 
         return null;
+    }
+
+    private boolean validateNodes(Node src, Node dst) {
+        if (src == null || dst == null) return false;
+        if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return false;
+        return true;
     }
 
     private Path bfs(Node src, Node dst) {
