@@ -96,6 +96,7 @@ public class Graph {
         GraphSearchStrategy strategy = switch (algo) {
             case BFS -> new BFSSearch();
             case DFS -> new DFSSearch();
+            case RANDOM -> new RandomWalkSearch();
         };
 
         strategy.setEdges(edges);

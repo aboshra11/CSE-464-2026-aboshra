@@ -5,7 +5,7 @@ import java.util.List;
 public abstract class GraphSearchTemplate implements GraphSearchStrategy {
 
     // Template method — defines the skeleton of the algorithm
-    public final Path search(Node src, Node dst) {
+    public Path search(Node src, Node dst) {
         initialize(src);
 
         while (hasNext()) {
