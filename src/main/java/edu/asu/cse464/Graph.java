@@ -125,13 +125,10 @@ public class Graph {
     public Path graphSearch(Node src, Node dst, Algorithm algo) {
         if (!validateNodes(src, dst)) return null;
 
-        if (algo == Algorithm.BFS) {
-            return bfs(src, dst);
-        } else if (algo == Algorithm.DFS) {
-            return dfs(src, dst);
-        }
-
-        return null;
+        return switch (algo) {
+            case BFS -> bfs(src, dst);
+            case DFS -> dfs(src, dst);
+        };
     }
 
     private List<Node> getNeighbors(Node node) {
