@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Graph {
     private final Map<String, Node> nodes;
@@ -132,6 +134,16 @@ public class Graph {
         return null;
     }
 
+    private List<Node> getNeighbors(Node node) {
+        List<Node> neighbors = new ArrayList<>();
+        for (Edge edge : edges) {
+            if (edge.getSource().equals(node)) {
+                neighbors.add(edge.getDestination());
+            }
+        }
+        return neighbors;
+    }
+
     private boolean validateNodes(Node src, Node dst) {
         if (src == null || dst == null) return false;
         if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return false;
@@ -152,10 +164,10 @@ public class Graph {
                 return reconstructPath(parentMap, dst);
             }
 
-            for (Edge edge : edges) {
-                if (edge.getSource().equals(current) && !parentMap.containsKey(edge.getDestination())) {
-                    parentMap.put(edge.getDestination(), current);
-                    queue.add(edge.getDestination());
+            for (Node neighbor : getNeighbors(current)) {
+                if (!parentMap.containsKey(neighbor)) {
+                    parentMap.put(neighbor, current);
+                    queue.add(neighbor);
                 }
             }
         }
@@ -181,12 +193,12 @@ public class Graph {
                 return reconstructPath(parentMap, dst);
             }
 
-            for (Edge edge : edges) {
-                if (edge.getSource().equals(current) && !visited.contains(edge.getDestination())) {
-                    if (!parentMap.containsKey(edge.getDestination())) {
-                        parentMap.put(edge.getDestination(), current);
+            for (Node neighbor : getNeighbors(current)) {
+                if (!visited.contains(neighbor)) {
+                    if (!parentMap.containsKey(neighbor)) {
+                        parentMap.put(neighbor, current);
                     }
-                    stack.push(edge.getDestination());
+                    stack.push(neighbor);
                 }
             }
         }
