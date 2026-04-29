@@ -120,7 +120,7 @@ public class Graph {
 
     // ─── Graph Search ─────────────────────────────────────────────────────────
 
-    public Path GraphSearch(Node src, Node dst, Algorithm algo) {
+    public Path graphSearch(Node src, Node dst, Algorithm algo) {
         if (src == null || dst == null) return null;
         if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return null;
 
