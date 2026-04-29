@@ -104,9 +104,7 @@ public class Graph {
     }
 
     private boolean validateNodes(Node src, Node dst) {
-        if (src == null || dst == null) return false;
-        if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return false;
-        return true;
+        return src != null && dst != null && nodes.containsValue(src) && nodes.containsValue(dst);
     }
 
     // ─── Getters ─────────────────────────────────────────────────────────────

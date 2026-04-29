@@ -6,6 +6,7 @@ public abstract class GraphSearchTemplate implements GraphSearchStrategy {
 
     // Template method — defines the skeleton of the algorithm
     public Path search(Node src, Node dst) {
+        if (src == null || dst == null) return null;
         initialize(src);
 
         while (hasNext()) {

@@ -47,8 +47,11 @@ public class RandomWalkSearch extends GraphSearchTemplate {
     @Override
     public Path search(Node src, Node dst) {
         initialize(src);
+        int maxIterations = 1000;
+        int iterations = 0;
 
-        while (hasNext()) {
+        while (hasNext() && iterations < maxIterations) {
+            iterations++;
             Node curr = getNext();
             System.out.println("visiting " + buildCurrentPath(curr));
 
@@ -62,7 +65,6 @@ public class RandomWalkSearch extends GraphSearchTemplate {
                 return null;
             }
 
-            // Pick a random neighbor
             Node next = neighbors.get(random.nextInt(neighbors.size()));
             if (!parentMap.containsKey(next)) {
                 parentMap.put(next, curr);
