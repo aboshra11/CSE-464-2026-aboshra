@@ -2,7 +2,7 @@ package edu.asu.cse464;
 
 import java.util.List;
 
-public abstract class GraphSearchTemplate {
+public abstract class GraphSearchTemplate implements GraphSearchStrategy {
 
     // Template method — defines the skeleton of the algorithm
     public final Path search(Node src, Node dst) {

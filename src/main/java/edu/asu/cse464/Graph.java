@@ -93,13 +93,13 @@ public class Graph {
     public Path graphSearch(Node src, Node dst, Algorithm algo) {
         if (!validateNodes(src, dst)) return null;
 
-        GraphSearchTemplate searcher = switch (algo) {
+        GraphSearchStrategy strategy = switch (algo) {
             case BFS -> new BFSSearch();
             case DFS -> new DFSSearch();
         };
 
-        searcher.setEdges(edges);
-        return searcher.search(src, dst);
+        strategy.setEdges(edges);
+        return strategy.search(src, dst);
     }
 
     private boolean validateNodes(Node src, Node dst) {
