@@ -15,7 +15,7 @@ public class Node {
 
     @Override
     public String toString() {
-        return label;
+        return "Node{" + label + "}";
     }
 
     @Override

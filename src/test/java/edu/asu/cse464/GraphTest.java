@@ -101,7 +101,7 @@ public class GraphTest {
 
         assertTrue(output.contains("Number of nodes: 2"));
         assertTrue(output.contains("Number of edges: 1"));
-        assertTrue(output.contains("a -> b"));
+        assertTrue(output.contains("Node{a} -> Node{b}"));
     }
 
     // ─── Scenario 1: nodes and edges correctly removed ───────────────────────

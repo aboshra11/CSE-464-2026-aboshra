@@ -18,6 +18,15 @@ public class Path {
         return nodes;
     }
 
+    public String toHistoryString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < nodes.size(); i++) {
+            sb.append(nodes.get(i).getLabel());
+            if (i < nodes.size() - 1) sb.append("-");
+        }
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

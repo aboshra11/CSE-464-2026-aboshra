@@ -3,11 +3,11 @@ package edu.asu.cse464;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 public class Graph {
@@ -22,49 +22,30 @@ public class Graph {
     // ─── Add APIs ────────────────────────────────────────────────────────────
 
     public void addNode(String label) {
-        if (label == null) {
-            return;
-        }
-
+        if (label == null) return;
         label = label.trim();
-
-        if (label.isEmpty()) {
-            return;
-        }
-
+        if (label.isEmpty()) return;
         if (!nodes.containsKey(label)) {
             nodes.put(label, new Node(label));
         }
     }
 
     public void addNodes(String[] labels) {
-        if (labels == null) {
-            return;
-        }
-
+        if (labels == null) return;
         for (String label : labels) {
             addNode(label);
         }
     }
 
     public void addEdge(String srcLabel, String dstLabel) {
-        if (srcLabel == null || dstLabel == null) {
-            return;
-        }
-
+        if (srcLabel == null || dstLabel == null) return;
         srcLabel = srcLabel.trim();
         dstLabel = dstLabel.trim();
-
-        if (srcLabel.isEmpty() || dstLabel.isEmpty()) {
-            return;
-        }
-
+        if (srcLabel.isEmpty() || dstLabel.isEmpty()) return;
         addNode(srcLabel);
         addNode(dstLabel);
-
         Node src = nodes.get(srcLabel);
         Node dst = nodes.get(dstLabel);
-
         edges.add(new Edge(src, dst));
     }
 
@@ -74,22 +55,16 @@ public class Graph {
         if (label == null || !nodes.containsKey(label.trim())) {
             throw new IllegalArgumentException("Node not found: " + label);
         }
-
         label = label.trim();
         Node toRemove = nodes.get(label);
-
         edges.removeIf(e ->
                 e.getSource().equals(toRemove) || e.getDestination().equals(toRemove)
         );
-
         nodes.remove(label);
     }
 
     public void removeNodes(String[] labels) {
-        if (labels == null) {
-            return;
-        }
-
+        if (labels == null) return;
         for (String label : labels) {
             removeNode(label);
         }
@@ -99,106 +74,37 @@ public class Graph {
         if (srcLabel == null || dstLabel == null) {
             throw new IllegalArgumentException("Labels cannot be null.");
         }
-
         srcLabel = srcLabel.trim();
         dstLabel = dstLabel.trim();
-
         Node src = nodes.get(srcLabel);
         Node dst = nodes.get(dstLabel);
-
         if (src == null || dst == null) {
             throw new IllegalArgumentException("One or both nodes not found.");
         }
-
         Edge toRemove = new Edge(src, dst);
         if (!edges.contains(toRemove)) {
             throw new IllegalArgumentException("Edge not found: " + srcLabel + " -> " + dstLabel);
         }
-
         edges.remove(toRemove);
     }
 
     // ─── Graph Search ─────────────────────────────────────────────────────────
 
-    public Path GraphSearch(Node src, Node dst, Algorithm algo) {
-        if (src == null || dst == null) return null;
-        if (!nodes.containsValue(src) || !nodes.containsValue(dst)) return null;
+    public Path graphSearch(Node src, Node dst, Algorithm algo) {
+        if (!validateNodes(src, dst)) return null;
 
-        if (algo == Algorithm.BFS) {
-            return bfs(src, dst);
-        } else if (algo == Algorithm.DFS) {
-            return dfs(src, dst);
-        }
+        GraphSearchStrategy strategy = switch (algo) {
+            case BFS -> new BFSSearch();
+            case DFS -> new DFSSearch();
+            case RANDOM -> new RandomWalkSearch();
+        };
 
-        return null;
+        strategy.setEdges(edges);
+        return strategy.search(src, dst);
     }
 
-    private Path bfs(Node src, Node dst) {
-        Queue<Node> queue = new LinkedList<>();
-        Map<Node, Node> parentMap = new LinkedHashMap<>();
-
-        queue.add(src);
-        parentMap.put(src, null);
-
-        while (!queue.isEmpty()) {
-            Node current = queue.poll();
-
-            if (current.equals(dst)) {
-                return reconstructPath(parentMap, dst);
-            }
-
-            for (Edge edge : edges) {
-                if (edge.getSource().equals(current) && !parentMap.containsKey(edge.getDestination())) {
-                    parentMap.put(edge.getDestination(), current);
-                    queue.add(edge.getDestination());
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private Path dfs(Node src, Node dst) {
-        Set<Node> visited = new LinkedHashSet<>();
-        LinkedList<Node> stack = new LinkedList<>();
-        Map<Node, Node> parentMap = new LinkedHashMap<>();
-
-        stack.push(src);
-        parentMap.put(src, null);
-
-        while (!stack.isEmpty()) {
-            Node current = stack.pop();
-
-            if (visited.contains(current)) continue;
-            visited.add(current);
-
-            if (current.equals(dst)) {
-                return reconstructPath(parentMap, dst);
-            }
-
-            for (Edge edge : edges) {
-                if (edge.getSource().equals(current) && !visited.contains(edge.getDestination())) {
-                    if (!parentMap.containsKey(edge.getDestination())) {
-                        parentMap.put(edge.getDestination(), current);
-                    }
-                    stack.push(edge.getDestination());
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private Path reconstructPath(Map<Node, Node> parentMap, Node dst) {
-        Path path = new Path();
-        LinkedList<Node> result = new LinkedList<>();
-        Node step = dst;
-        while (step != null) {
-            result.addFirst(step);
-            step = parentMap.get(step);
-        }
-        for (Node n : result) path.addNode(n);
-        return path;
+    private boolean validateNodes(Node src, Node dst) {
+        return src != null && dst != null && nodes.containsValue(src) && nodes.containsValue(dst);
     }
 
     // ─── Getters ─────────────────────────────────────────────────────────────
@@ -225,28 +131,18 @@ public class Graph {
         if (format == null || format.trim().isEmpty()) {
             throw new IllegalArgumentException("Format cannot be null or empty.");
         }
-
         format = format.trim().toLowerCase();
-
         if (!format.equals("png")) {
             throw new IllegalArgumentException("Only png format is currently supported.");
         }
-
         String tempDotFile = "temp_graph.dot";
         outputDOTGraph(tempDotFile);
-
         ProcessBuilder processBuilder = new ProcessBuilder(
-                "dot",
-                "-T" + format,
-                tempDotFile,
-                "-o",
-                path
+                "dot", "-T" + format, tempDotFile, "-o", path
         );
-
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         int exitCode = process.waitFor();
-
         if (exitCode != 0) {
             throw new RuntimeException("Graphviz command failed with exit code: " + exitCode);
         }
@@ -257,14 +153,12 @@ public class Graph {
     public String toDOTString() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
-
         for (Edge edge : edges) {
             sb.append(edge.getSource().getLabel())
                     .append(" -> ")
                     .append(edge.getDestination().getLabel())
                     .append(";\n");
         }
-
         sb.append("}\n");
         return sb.toString();
     }
@@ -272,20 +166,17 @@ public class Graph {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
         sb.append("Number of nodes: ").append(nodes.size()).append("\n");
         sb.append("Node labels: ");
         for (Node node : nodes.values()) {
             sb.append(node.getLabel()).append(" ");
         }
         sb.append("\n");
-
         sb.append("Number of edges: ").append(edges.size()).append("\n");
         sb.append("Edges:\n");
         for (Edge edge : edges) {
             sb.append(edge).append("\n");
         }
-
         return sb.toString();
     }
 }
