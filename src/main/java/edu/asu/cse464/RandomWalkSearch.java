@@ -1,32 +1,35 @@
 package edu.asu.cse464;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RandomWalkSearch extends GraphSearchTemplate {
 
-    private Node current;
-    private final java.util.Map<Node, Node> parentMap = new java.util.LinkedHashMap<>();
-    private final java.util.Set<Node> visited = new java.util.LinkedHashSet<>();
-    private boolean done = false;
     private final Random random = new Random();
+    private Map<Node, Node> parentMap;
+    private Set<Node> visited;
 
     @Override
     protected void initialize(Node src) {
-        current = src;
+        parentMap = new LinkedHashMap<>();
+        visited = new LinkedHashSet<>();
         parentMap.put(src, null);
         visited.add(src);
     }
 
     @Override
     protected boolean hasNext() {
-        return current != null && !done;
+        return true; // controlled inside search()
     }
 
     @Override
     protected Node getNext() {
-        return current;
+        return null; // not used
     }
 
     @Override
@@ -36,7 +39,7 @@ public class RandomWalkSearch extends GraphSearchTemplate {
 
     @Override
     protected void addToFrontier(Node node, Node parent) {
-        // not used in random walk — next node chosen randomly
+        // not used in random walk
     }
 
     @Override
@@ -46,33 +49,36 @@ public class RandomWalkSearch extends GraphSearchTemplate {
 
     @Override
     public Path search(Node src, Node dst) {
+        if (src == null || dst == null) return null;
         initialize(src);
-        int maxIterations = 1000;
-        int iterations = 0;
 
-        while (hasNext() && iterations < maxIterations) {
-            iterations++;
-            Node curr = getNext();
-            System.out.println("visiting " + buildCurrentPath(curr));
+        Node current = src;
+        System.out.println("Visit Node History: " + src.getLabel());
 
-            if (curr.equals(dst)) {
-                return buildCurrentPath(curr);
+        while (true) {
+            if (current.equals(dst)) {
+                System.out.println("Found target node: " + current.getLabel());
+                return buildCurrentPath(current);
             }
 
-            List<Node> neighbors = getNeighbors(curr);
-            if (neighbors.isEmpty()) {
-                done = true;
+            // Get unvisited neighbors only
+            List<Node> unvisitedNeighbors = getNeighbors(current).stream()
+                    .filter(n -> !visited.contains(n))
+                    .collect(Collectors.toList());
+
+            if (unvisitedNeighbors.isEmpty()) {
+                System.out.println("Reached dead end at " + current.getLabel());
                 return null;
             }
 
-            Node next = neighbors.get(random.nextInt(neighbors.size()));
-            if (!parentMap.containsKey(next)) {
-                parentMap.put(next, curr);
-            }
+            // Pick a random unvisited neighbor
+            Node next = unvisitedNeighbors.get(random.nextInt(unvisitedNeighbors.size()));
+            parentMap.put(next, current);
             visited.add(next);
             current = next;
-        }
 
-        return null;
+            Path currentPath = buildCurrentPath(current);
+            System.out.println("Visit Node History: " + currentPath.toHistoryString());
+        }
     }
 }

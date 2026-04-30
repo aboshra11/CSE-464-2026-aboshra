@@ -9,15 +9,25 @@ public abstract class GraphSearchTemplate implements GraphSearchStrategy {
         if (src == null || dst == null) return null;
         initialize(src);
 
+        Path currentPath = new Path();
+        currentPath.addNode(src);
+        System.out.println("Visit Node History: " + currentPath.toHistoryString());
+
         while (hasNext()) {
             Node current = getNext();
-            System.out.println("visiting " + buildCurrentPath(current));
 
-            if (current.equals(dst)) {
-                return buildCurrentPath(current);
+            if (!current.equals(src)) {
+                currentPath.addNode(current);
+                System.out.println("Visit Node History: " + currentPath.toHistoryString());
             }
 
-            for (Node neighbor : getNeighbors(current)) {
+            if (current.equals(dst)) {
+                System.out.println("Found target node: " + current.getLabel());
+                return currentPath;
+            }
+
+            List<Node> neighbors = getSortedNeighbors(current);
+            for (Node neighbor : neighbors) {
                 if (!isVisited(neighbor)) {
                     addToFrontier(neighbor, current);
                 }
@@ -27,7 +37,14 @@ public abstract class GraphSearchTemplate implements GraphSearchStrategy {
         return null;
     }
 
-    // Common method — get neighbors from graph edges
+    protected List<Node> getSortedNeighbors(Node node) {
+        return graphEdges.stream()
+                .filter(e -> e.getSource().equals(node))
+                .map(Edge::getDestination)
+                .sorted((a, b) -> a.getLabel().compareTo(b.getLabel()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     protected List<Node> getNeighbors(Node node) {
         return graphEdges.stream()
                 .filter(e -> e.getSource().equals(node))

@@ -49,4 +49,29 @@ public class BFSSearch extends GraphSearchTemplate {
     protected Node getParent(Node node) {
         return parentMap.get(node);
     }
+
+    @Override
+    public Path search(Node src, Node dst) {
+        if (src == null || dst == null) return null;
+        initialize(src);
+
+        while (hasNext()) {
+            Node current = getNext();
+            Path currentPath = buildCurrentPath(current);
+            System.out.println("Visit Node History: " + currentPath.toHistoryString());
+
+            if (current.equals(dst)) {
+                System.out.println("Found target node: " + current.getLabel());
+                return currentPath;
+            }
+
+            for (Node neighbor : getSortedNeighbors(current)) {
+                if (!isVisited(neighbor)) {
+                    addToFrontier(neighbor, current);
+                }
+            }
+        }
+
+        return null;
+    }
 }

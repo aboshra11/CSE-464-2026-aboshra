@@ -53,4 +53,32 @@ public class DFSSearch extends GraphSearchTemplate {
     protected Node getParent(Node node) {
         return parentMap.get(node);
     }
+
+    @Override
+    public Path search(Node src, Node dst) {
+        if (src == null || dst == null) return null;
+        initialize(src);
+
+        while (hasNext()) {
+            Node current = getNext();
+            Path currentPath = buildCurrentPath(current);
+            System.out.println("Visit Node History: " + currentPath.toHistoryString());
+
+            if (current.equals(dst)) {
+                System.out.println("Found target node: " + current.getLabel());
+                return currentPath;
+            }
+
+            // Add neighbors in reverse alphabetical order so stack pops in alphabetical order
+            java.util.List<Node> neighbors = getSortedNeighbors(current);
+            java.util.Collections.reverse(neighbors);
+            for (Node neighbor : neighbors) {
+                if (!isVisited(neighbor)) {
+                    addToFrontier(neighbor, current);
+                }
+            }
+        }
+
+        return null;
+    }
 }

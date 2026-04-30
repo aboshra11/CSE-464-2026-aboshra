@@ -2,15 +2,15 @@ Number of nodes: 12
 Node labels: a b c d e f g h x y z m 
 Number of edges: 12
 Edges:
-a -> b
-b -> c
-c -> d
-d -> a
-a -> e
-e -> f
-e -> g
-f -> h
-g -> h
-x -> y
-y -> z
-m -> a
+Node{a} -> Node{b}
+Node{b} -> Node{c}
+Node{c} -> Node{d}
+Node{d} -> Node{a}
+Node{a} -> Node{e}
+Node{e} -> Node{f}
+Node{e} -> Node{g}
+Node{f} -> Node{h}
+Node{g} -> Node{h}
+Node{x} -> Node{y}
+Node{y} -> Node{z}
+Node{m} -> Node{a}
